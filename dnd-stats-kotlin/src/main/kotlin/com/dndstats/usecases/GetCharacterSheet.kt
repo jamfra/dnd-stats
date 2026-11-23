@@ -16,7 +16,7 @@ class GetCharacterSheet(private val store: CharacterStore) {
         val species: String,
         val level: Int,
         val characterClass: String,
-        val proficiencyBonus: Int = 2,
+        val proficiencyBonus: Int,
         val abilityScores: Map<String, StatDto>,
         val hitpoints: Int,
         val armourClass: Int,
