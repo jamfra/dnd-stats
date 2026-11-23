@@ -8,7 +8,9 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.util.UUID
 
 class CreateCharacterTest {
@@ -16,12 +18,12 @@ class CreateCharacterTest {
     private val store = mockk<CharacterStore>()
     private val createCharacter = CreateCharacter(store)
 
-    private val input = CreateCharacter.Input(
-        name = "",
-        species = "",
-        characterClass = "",
-        level = 0,
-        abilityScores = CreateCharacter.Input.AbilityScoreInput(0, 0, 0, 0, 0, 0),
+    private val validInput = CreateCharacter.Input(
+        name = "Aria",
+        species = "Human",
+        characterClass = "Paladin",
+        level = 1,
+        abilityScores = CreateCharacter.Input.AbilityScoreInput(15, 8, 13, 10, 12, 14),
     )
 
     @Test
@@ -29,10 +31,13 @@ class CreateCharacterTest {
         val captured = slot<Character>()
         every { store.save(capture(captured)) } returns UUID.randomUUID()
 
-        createCharacter.execute(input)
+        createCharacter.execute(validInput)
 
         verify { store.save(any()) }
-        assertEquals(Character("", "", "", 0, AbilityScores(0, 0, 0, 0, 0, 0)), captured.captured)
+        assertEquals(
+            Character("Aria", "Human", "Paladin", 1, AbilityScores(15, 8, 13, 10, 12, 14)),
+            captured.captured,
+        )
     }
 
     @Test
@@ -40,8 +45,108 @@ class CreateCharacterTest {
         val expectedId = UUID.fromString("05b86b6c-c349-496a-b94f-a6c3d801ebf5")
         every { store.save(any()) } returns expectedId
 
-        val result = createCharacter.execute(input)
+        val result = createCharacter.execute(validInput)
 
         assertEquals(expectedId, result.id)
+    }
+
+    @Test
+    fun `rejects empty name`() {
+        val ex = assertThrows<ValidationException> {
+            createCharacter.execute(validInput.copy(name = "   "))
+        }
+        assertTrue(ex.errors.any { it.contains("Name", ignoreCase = true) })
+        verify(exactly = 0) { store.save(any()) }
+    }
+
+    @Test
+    fun `rejects name exceeding 50 characters`() {
+        val ex = assertThrows<ValidationException> {
+            createCharacter.execute(validInput.copy(name = "a".repeat(51)))
+        }
+        assertTrue(ex.errors.any { it.contains("Name", ignoreCase = true) })
+        verify(exactly = 0) { store.save(any()) }
+    }
+
+    @Test
+    fun `rejects species exceeding 50 characters`() {
+        val ex = assertThrows<ValidationException> {
+            createCharacter.execute(validInput.copy(species = "a".repeat(51)))
+        }
+        assertTrue(ex.errors.any { it.contains("Species", ignoreCase = true) })
+        verify(exactly = 0) { store.save(any()) }
+    }
+
+    @Test
+    fun `rejects invalid or missing class`() {
+        val ex = assertThrows<ValidationException> {
+            createCharacter.execute(validInput.copy(characterClass = "InvalidClass"))
+        }
+        assertTrue(ex.errors.any { it.contains("Class", ignoreCase = true) })
+        verify(exactly = 0) { store.save(any()) }
+    }
+
+    @Test
+    fun `rejects level less than 1`() {
+        val ex = assertThrows<ValidationException> {
+            createCharacter.execute(validInput.copy(level = 0))
+        }
+        assertTrue(ex.errors.any { it.contains("Level", ignoreCase = true) })
+        verify(exactly = 0) { store.save(any()) }
+    }
+
+    @Test
+    fun `rejects level greater than 20`() {
+        val ex = assertThrows<ValidationException> {
+            createCharacter.execute(validInput.copy(level = 21))
+        }
+        assertTrue(ex.errors.any { it.contains("Level", ignoreCase = true) })
+        verify(exactly = 0) { store.save(any()) }
+    }
+
+    @Test
+    fun `rejects ability score of 0`() {
+        val ex = assertThrows<ValidationException> {
+            createCharacter.execute(
+                validInput.copy(
+                    abilityScores = validInput.abilityScores.copy(strength = 0),
+                )
+            )
+        }
+        assertTrue(ex.errors.any { it.contains("Strength", ignoreCase = true) })
+        verify(exactly = 0) { store.save(any()) }
+    }
+
+    @Test
+    fun `rejects ability score greater than 30`() {
+        val ex = assertThrows<ValidationException> {
+            createCharacter.execute(
+                validInput.copy(
+                    abilityScores = validInput.abilityScores.copy(dexterity = 31),
+                )
+            )
+        }
+        assertTrue(ex.errors.any { it.contains("Dexterity", ignoreCase = true) })
+        verify(exactly = 0) { store.save(any()) }
+    }
+
+    @Test
+    fun `collects multiple validation errors and names all fields at fault`() {
+        val ex = assertThrows<ValidationException> {
+            createCharacter.execute(
+                validInput.copy(
+                    name = "",
+                    characterClass = "None",
+                    level = 25,
+                    abilityScores = CreateCharacter.Input.AbilityScoreInput(0, 35, 10, 10, 10, 10),
+                )
+            )
+        }
+        assertTrue(ex.errors.any { it.contains("Name", ignoreCase = true) })
+        assertTrue(ex.errors.any { it.contains("Class", ignoreCase = true) })
+        assertTrue(ex.errors.any { it.contains("Level", ignoreCase = true) })
+        assertTrue(ex.errors.any { it.contains("Strength", ignoreCase = true) })
+        assertTrue(ex.errors.any { it.contains("Dexterity", ignoreCase = true) })
+        verify(exactly = 0) { store.save(any()) }
     }
 }

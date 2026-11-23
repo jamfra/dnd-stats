@@ -38,7 +38,7 @@ class CreateCharacterIntegrationTest {
     fun `POST createCharacter creates character and redirects`() = withApp {
         val response = client.post("/createCharacter") {
             contentType(ContentType.Application.FormUrlEncoded)
-            setBody("name=Bob")
+            setBody("name=Bob&species=Human&characterClass=Paladin&level=1&strength=15&dexterity=8&constitution=13&intelligence=10&wisdom=12&charisma=14")
         }
         assertEquals(HttpStatusCode.Found, response.status)
         val location = response.headers[HttpHeaders.Location] ?: ""

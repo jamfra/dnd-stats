@@ -27,6 +27,7 @@ class GetCharacterSheetTest {
                 species = "human",
                 level = 1,
                 characterClass = "paladin",
+                proficiencyBonus = 2,
                 abilityScores = mapOf(
                     "strength"     to GetCharacterSheet.StatDto(15, 2, 2, false),
                     "dexterity"    to GetCharacterSheet.StatDto(13, 1, 1, false),
@@ -38,7 +39,7 @@ class GetCharacterSheetTest {
                 hitpoints = 12,
                 armourClass = 11,
                 equipped = null,
-                weapons = emptyList<String>(),
+                weapons = emptyList(),
             ),
             result.sheet,
         )

@@ -5,9 +5,6 @@ import com.dndstats.gateways.CharacterStore
 import kotlinx.serialization.Serializable
 import java.util.UUID
 
-/**
- * Use case: retrieve a full character sheet by ID.
- */
 class GetCharacterSheet(private val store: CharacterStore) {
     data class Input(val id: UUID)
 
@@ -19,6 +16,7 @@ class GetCharacterSheet(private val store: CharacterStore) {
         val species: String,
         val level: Int,
         val characterClass: String,
+        val proficiencyBonus: Int = 2,
         val abilityScores: Map<String, StatDto>,
         val hitpoints: Int,
         val armourClass: Int,
@@ -54,6 +52,7 @@ class GetCharacterSheet(private val store: CharacterStore) {
                 species = info.species,
                 level = info.level,
                 characterClass = info.characterClass,
+                proficiencyBonus = character.proficiencyBonus(),
                 abilityScores = abilityScores,
                 hitpoints = character.hitpoints(),
                 armourClass = character.armourClass(),

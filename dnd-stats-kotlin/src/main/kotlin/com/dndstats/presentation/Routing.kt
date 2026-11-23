@@ -1,6 +1,7 @@
 package com.dndstats.presentation
 
 import com.dndstats.usecases.CreateCharacter
+import com.dndstats.usecases.GetCharacterSheet
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.html.*
@@ -10,10 +11,6 @@ import io.ktor.server.routing.*
 import kotlinx.html.*
 import java.util.UUID
 
-/**
- * Presentation layer: Ktor routing.
- * Depends on use cases only — no domain types leak into this layer.
- */
 fun Application.configureRouting(useCases: UseCases) {
     routing {
         get("/") {
@@ -33,14 +30,30 @@ fun Application.configureRouting(useCases: UseCases) {
         post("/createCharacter") {
             val params = call.receiveParameters()
             val name = params["name"].orEmpty()
+            val species = params["species"].orEmpty()
+            val characterClass = params["characterClass"] ?: params["class"].orEmpty()
+            val level = params["level"]?.toIntOrNull() ?: 0
+            val strength = params["strength"]?.toIntOrNull() ?: 0
+            val dexterity = params["dexterity"]?.toIntOrNull() ?: 0
+            val constitution = params["constitution"]?.toIntOrNull() ?: 0
+            val intelligence = params["intelligence"]?.toIntOrNull() ?: 0
+            val wisdom = params["wisdom"]?.toIntOrNull() ?: 0
+            val charisma = params["charisma"]?.toIntOrNull() ?: 0
 
             val result = useCases.createCharacter.execute(
                 CreateCharacter.Input(
                     name = name,
-                    species = "",
-                    characterClass = "",
-                    level = 0,
-                    abilityScores = CreateCharacter.Input.AbilityScoreInput(0, 0, 0, 0, 0, 0),
+                    species = species,
+                    characterClass = characterClass,
+                    level = level,
+                    abilityScores = CreateCharacter.Input.AbilityScoreInput(
+                        strength = strength,
+                        dexterity = dexterity,
+                        constitution = constitution,
+                        intelligence = intelligence,
+                        wisdom = wisdom,
+                        charisma = charisma,
+                    ),
                 )
             )
 
@@ -56,7 +69,7 @@ fun Application.configureRouting(useCases: UseCases) {
             }
 
             val output = useCases.getCharacterSheet.execute(
-                com.dndstats.usecases.GetCharacterSheet.Input(id = id)
+                GetCharacterSheet.Input(id = id)
             )
 
             call.respond(HttpStatusCode.OK, output.sheet)
