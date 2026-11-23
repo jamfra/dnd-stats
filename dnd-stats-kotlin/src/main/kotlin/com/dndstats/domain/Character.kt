@@ -1,9 +1,5 @@
 package com.dndstats.domain
 
-/**
- * Aggregate root for a D&D character.
- * Pure Kotlin — no framework dependencies.
- */
 class Character(
     private val name: String,
     private val species: String,
@@ -25,12 +21,16 @@ class Character(
         val proficient: Boolean,
     )
 
+    private val dndClass: CharacterClass? = CharacterClass.from(characterClass)
+
     fun basicInfo() = BasicInfo(
         name = name,
         species = species,
         level = level,
         characterClass = characterClass,
     )
+
+    fun proficiencyBonus(): Int = ((level - 1) / 4) + 2
 
     fun getStat(name: ScoreName): StatResult {
         val isProficient = proficiencies().contains(name)
@@ -49,14 +49,9 @@ class Character(
 
     fun armourClass(): Int = abilityScores.get(ScoreName.DEXTERITY).modifier + 10
 
-    private fun hitDie(): Int = 10
+    private fun hitDie(): Int = dndClass?.hitDie ?: 10
 
-    private fun proficiencies(): List<ScoreName> = when (characterClass) {
-        "paladin" -> listOf(ScoreName.CHARISMA, ScoreName.WISDOM)
-        else -> emptyList()
-    }
-
-    private fun proficiencyBonus(): Int = 2
+    private fun proficiencies(): List<ScoreName> = dndClass?.savingThrows ?: emptyList()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

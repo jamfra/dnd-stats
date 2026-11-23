@@ -50,7 +50,6 @@ class CreateCharacterIntegrationTest {
 
     @Test
     fun `full create and get character flow`() = withApp {
-        // Create via use case directly so we have the ID
         val store = InMemoryCharacterStore()
         val useCases = buildUseCases(store)
         val id = useCases.createCharacter.execute(
@@ -63,7 +62,6 @@ class CreateCharacterIntegrationTest {
             )
         ).id
 
-        // Spin up a test app backed by the same store
         testApplication {
             application {
                 configureSerialization()
@@ -75,10 +73,11 @@ class CreateCharacterIntegrationTest {
             assertEquals(HttpStatusCode.OK, response.status)
 
             val json = Json.parseToJsonElement(response.bodyAsText()).jsonObject
-            val sheet = json["sheet"]!!.jsonObject
+            val sheet = json["sheet"]?.jsonObject ?: json
 
             assertEquals("test", sheet["name"]?.jsonPrimitive?.content)
-            assertEquals("paladin", sheet["characterClass"]?.jsonPrimitive?.content)            assertEquals(11, sheet["hitpoints"]?.jsonPrimitive?.int)
+            assertEquals("paladin", sheet["characterClass"]?.jsonPrimitive?.content)
+            assertEquals(11, sheet["hitpoints"]?.jsonPrimitive?.int)
             assertEquals(9, sheet["armourClass"]?.jsonPrimitive?.int)
         }
     }

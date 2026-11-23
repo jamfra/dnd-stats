@@ -1,10 +1,5 @@
 package com.dndstats.domain
 
-/**
- * Represents the six core D&D ability scores.
- * Scores are capped at 20 (the standard 5e maximum).
- * This is a pure value type — no framework dependencies — making it KMP-friendly.
- */
 enum class ScoreName {
     STRENGTH, DEXTERITY, CONSTITUTION, INTELLIGENCE, WISDOM, CHARISMA
 }
@@ -53,7 +48,7 @@ data class AbilityScores(
         ScoreName.CHARISMA -> charisma
     }
 
-    private fun modifier(score: Int): Int = (score - 10) / 2
+    private fun modifier(score: Int): Int = Math.floorDiv(score - 10, 2)
 
-    private fun cap(score: Int): Int = minOf(score, 20)
+    private fun cap(score: Int): Int = minOf(score, 30)
 }
