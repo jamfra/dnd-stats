@@ -38,10 +38,22 @@ class GetCharacterSheetTest {
                 ),
                 hitpoints = 12,
                 armourClass = 11,
+                armourClassOverride = null,
                 equipped = null,
                 weapons = emptyList(),
             ),
             result.sheet,
         )
+    }
+
+    @Test
+    fun `includes armour class override when present`() {
+        val characterWithOverride = Character("test", "human", "paladin", 1, AbilityScores.default(), armourClassOverride = 18)
+        every { store.get(any()) } returns characterWithOverride
+
+        val result = getCharacterSheet.execute(GetCharacterSheet.Input(UUID.randomUUID()))
+
+        assertEquals(18, result.sheet.armourClassOverride)
+        assertEquals(18, result.sheet.armourClass)
     }
 }

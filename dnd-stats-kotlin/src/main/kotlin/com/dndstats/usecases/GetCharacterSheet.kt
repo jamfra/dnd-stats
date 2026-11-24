@@ -20,6 +20,7 @@ class GetCharacterSheet(private val store: CharacterStore) {
         val abilityScores: Map<String, StatDto>,
         val hitpoints: Int,
         val armourClass: Int,
+        val armourClassOverride: Int? = null,
         val equipped: String? = null,
         val weapons: List<String> = emptyList(),
     )
@@ -56,6 +57,7 @@ class GetCharacterSheet(private val store: CharacterStore) {
                 abilityScores = abilityScores,
                 hitpoints = character.hitpoints(),
                 armourClass = character.armourClass(),
+                armourClassOverride = info.armourClassOverride,
                 equipped = null,
                 weapons = emptyList(),
             )
