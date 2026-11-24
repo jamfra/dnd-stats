@@ -4,17 +4,13 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.html.*
 import io.ktor.server.plugins.statuspages.*
-import io.ktor.server.request.*
 import io.ktor.server.response.*
 import kotlinx.html.*
 
 fun Application.configureStatusPages() {
     install(StatusPages) {
         exception<NoSuchElementException> { call, cause ->
-            val acceptsHtml = call.request.acceptItems().any {
-                it.value.contains("text/html")
-            }
-            if (acceptsHtml) {
+            if (call.acceptsHtml()) {
                 call.respondHtml(HttpStatusCode.NotFound) {
                     body {
                         h1 { +"Character not found" }

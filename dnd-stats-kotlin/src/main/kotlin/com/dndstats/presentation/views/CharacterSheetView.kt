@@ -5,6 +5,10 @@ import kotlinx.html.*
 
 fun HTML.characterSheetPage(sheet: GetCharacterSheet.SheetDto) {
     body {
+        p {
+            a(href = "/") { +"Back to character list" }
+        }
+
         h1 { +"Character Sheet" }
 
         div(classes = "basic-info") {

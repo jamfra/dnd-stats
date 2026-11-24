@@ -14,16 +14,12 @@ import io.ktor.server.html.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import java.util.UUID
 
 fun Application.configureRouting(useCases: UseCases) {
     routing {
         get("/") {
-            val acceptsJson = call.request.acceptItems().any {
-                it.value.equals("application/json", ignoreCase = true)
-            }
             val characters = useCases.listCharacters.execute().characters
-            if (acceptsJson) {
+            if (call.acceptsJson()) {
                 call.respond(HttpStatusCode.OK, characters)
             } else {
                 call.respondHtml(HttpStatusCode.OK) {
@@ -71,10 +67,7 @@ fun Application.configureRouting(useCases: UseCases) {
 
                 call.respondRedirect("/character/${result.id}")
             } catch (e: ValidationException) {
-                val acceptsJson = call.request.acceptItems().any {
-                    it.value.equals("application/json", ignoreCase = true)
-                }
-                if (acceptsJson) {
+                if (call.acceptsJson()) {
                     call.respond(HttpStatusCode.BadRequest, mapOf("errors" to e.errors))
                 } else {
                     call.respondHtml(HttpStatusCode.BadRequest) {
@@ -85,22 +78,12 @@ fun Application.configureRouting(useCases: UseCases) {
         }
 
         get("/character/{id}") {
-            val idParam = call.parameters["id"]
-                ?: return@get call.respond(HttpStatusCode.BadRequest, "Missing character id")
-
-            val id = runCatching { UUID.fromString(idParam) }.getOrElse {
-                return@get call.respond(HttpStatusCode.BadRequest, "Invalid character id")
-            }
-
+            val id = call.receiveUuid() ?: return@get
             val output = useCases.getCharacterSheet.execute(
                 GetCharacterSheet.Input(id = id)
             )
 
-            val acceptsHtml = call.request.acceptItems().any {
-                it.value.contains("text/html")
-            }
-
-            if (acceptsHtml) {
+            if (call.acceptsHtml()) {
                 call.respondHtml(HttpStatusCode.OK) {
                     characterSheetPage(output.sheet)
                 }
@@ -110,13 +93,7 @@ fun Application.configureRouting(useCases: UseCases) {
         }
 
         get("/character/{id}/delete") {
-            val idParam = call.parameters["id"]
-                ?: return@get call.respond(HttpStatusCode.BadRequest, "Missing character id")
-
-            val id = runCatching { UUID.fromString(idParam) }.getOrElse {
-                return@get call.respond(HttpStatusCode.BadRequest, "Invalid character id")
-            }
-
+            val id = call.receiveUuid() ?: return@get
             val output = useCases.getCharacterSheet.execute(GetCharacterSheet.Input(id = id))
 
             call.respondHtml(HttpStatusCode.OK) {
@@ -125,15 +102,8 @@ fun Application.configureRouting(useCases: UseCases) {
         }
 
         post("/character/{id}/delete") {
-            val idParam = call.parameters["id"]
-                ?: return@post call.respond(HttpStatusCode.BadRequest, "Missing character id")
-
-            val id = runCatching { UUID.fromString(idParam) }.getOrElse {
-                return@post call.respond(HttpStatusCode.BadRequest, "Invalid character id")
-            }
-
+            val id = call.receiveUuid() ?: return@post
             useCases.deleteCharacter.execute(DeleteCharacter.Input(id = id))
-
             call.respondRedirect("/")
         }
     }

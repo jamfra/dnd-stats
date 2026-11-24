@@ -12,7 +12,10 @@ fun HTML.characterListPage(characters: List<ListCharacters.CharacterSummary>) {
         }
 
         if (characters.isEmpty()) {
-            p(classes = "empty-state") { +"No characters yet" }
+            p(classes = "empty-state") {
+                +"No characters yet. "
+                a(href = "/createCharacter") { +"Create one" }
+            }
         } else {
             table {
                 thead {

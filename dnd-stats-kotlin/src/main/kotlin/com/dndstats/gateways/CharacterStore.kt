@@ -8,11 +8,6 @@ data class StoredCharacter(
     val character: Character,
 )
 
-/**
- * Port (interface) for character persistence.
- * Lives in the gateways layer but depends only on domain types.
- * Implementations (adapters) live in the same package.
- */
 interface CharacterStore {
     fun save(character: Character): UUID
     fun get(id: UUID): Character

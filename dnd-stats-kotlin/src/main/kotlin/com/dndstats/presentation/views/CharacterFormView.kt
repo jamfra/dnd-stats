@@ -5,6 +5,10 @@ import kotlinx.html.*
 
 fun HTML.characterFormPage(errors: List<String> = emptyList()) {
     body {
+        p {
+            a(href = "/") { +"Back to character list" }
+        }
+
         h1 { +"Create Character" }
 
         if (errors.isNotEmpty()) {

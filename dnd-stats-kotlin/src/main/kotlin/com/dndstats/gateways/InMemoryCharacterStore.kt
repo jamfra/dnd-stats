@@ -5,10 +5,6 @@ import java.util.Collections
 import java.util.LinkedHashMap
 import java.util.UUID
 
-/**
- * In-memory adapter for [CharacterStore].
- * Thread-safe via synchronized LinkedHashMap to preserve insertion order (FIFO).
- */
 class InMemoryCharacterStore : CharacterStore {
     private val characters: MutableMap<UUID, Character> =
         Collections.synchronizedMap(LinkedHashMap<UUID, Character>())

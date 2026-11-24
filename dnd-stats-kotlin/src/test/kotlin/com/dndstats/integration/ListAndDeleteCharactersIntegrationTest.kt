@@ -116,7 +116,11 @@ class ListAndDeleteCharactersIntegrationTest {
 
     @Test
     fun `cancel delete keeps character in list`() = withApp {
-        createCharacter(client, "Aria", "Human", "Paladin", 1)
+        val ariaId = createCharacter(client, "Aria", "Human", "Paladin", 1)
+
+        val confirmResponse = client.get("/character/$ariaId/delete")
+        assertEquals(HttpStatusCode.OK, confirmResponse.status)
+        assertTrue(confirmResponse.bodyAsText().contains("href=\"/\""), "Expected cancel link back to list")
 
         val listResponse = client.get("/")
         assertEquals(HttpStatusCode.OK, listResponse.status)
