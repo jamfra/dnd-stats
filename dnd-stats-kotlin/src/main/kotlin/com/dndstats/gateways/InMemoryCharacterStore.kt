@@ -25,4 +25,10 @@ class InMemoryCharacterStore : CharacterStore {
     override fun delete(id: UUID): Boolean {
         return characters.remove(id) != null
     }
+
+    override fun update(id: UUID, character: Character): Boolean = synchronized(characters) {
+        if (!characters.containsKey(id)) return false
+        characters[id] = character
+        true
+    }
 }

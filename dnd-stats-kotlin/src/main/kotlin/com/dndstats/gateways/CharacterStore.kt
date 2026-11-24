@@ -13,4 +13,5 @@ interface CharacterStore {
     fun get(id: UUID): Character
     fun getAll(): List<StoredCharacter>
     fun delete(id: UUID): Boolean
+    fun update(id: UUID, character: Character): Boolean
 }

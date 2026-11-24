@@ -56,4 +56,24 @@ class InMemoryCharacterStoreTest {
         val deleted = store.delete(UUID.randomUUID())
         assertFalse(deleted)
     }
+
+    @Test
+    fun `update modifies existing character in-place and returns true`() {
+        val store = InMemoryCharacterStore()
+        val id = store.save(createCharacter("Aria"))
+        val updatedCharacter = createCharacter("Aria the Great")
+
+        val result = store.update(id, updatedCharacter)
+
+        assertTrue(result)
+        assertEquals("Aria the Great", store.get(id).basicInfo().name)
+    }
+
+    @Test
+    fun `update non-existent character returns false`() {
+        val store = InMemoryCharacterStore()
+        val result = store.update(UUID.randomUUID(), createCharacter("Ghost"))
+
+        assertFalse(result)
+    }
 }
