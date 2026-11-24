@@ -88,12 +88,17 @@ Test reports are generated at `build/reports/tests/test/index.html`.
 
 ## API Specification
 
-### 1. Character Creation Page
+### 1. Character List Page (Main Entrypoint)
 - **Method**: `GET /`
+- **Description**: Returns HTML listing all saved characters in creation order (oldest first). If no characters exist, displays "No characters yet".
+- **Response**: `200 OK` (`text/html` or `application/json`)
+
+### 2. Character Creation Page
+- **Method**: `GET /createCharacter`
 - **Description**: Returns HTML containing the character creation form rendered via Ktor HTML builder.
 - **Response**: `200 OK` (`text/html`)
 
-### 2. Create Character
+### 3. Create Character
 - **Method**: `POST /createCharacter`
 - **Content-Type**: `application/x-www-form-urlencoded`
 - **Request Body**:
@@ -103,74 +108,35 @@ Test reports are generated at `build/reports/tests/test/index.html`.
 - **Behavior**: Persists a character and redirects to the character sheet endpoint.
 - **Response**: `302 Found` with header `Location: /character/{id}`
 
-### 3. Get Character Sheet
+### 4. Get Character Sheet
 - **Method**: `GET /character/{id}`
 - **Description**: Fetches the computed D&D 5e sheet for the specified UUID.
-- **Response**: `200 OK` (`application/json`)
-- **Example Response Body**:
-  ```json
-  {
-    "name": "Bob",
-    "species": "human",
-    "characterClass": "paladin",
-    "level": 1,
-    "abilityScores": {
-      "strength": {
-        "score": 15,
-        "modifier": 2,
-        "savingThrow": 2,
-        "proficient": false
-      },
-      "dexterity": {
-        "score": 8,
-        "modifier": -1,
-        "savingThrow": -1,
-        "proficient": false
-      },
-      "constitution": {
-        "score": 13,
-        "modifier": 1,
-        "savingThrow": 1,
-        "proficient": false
-      },
-      "intelligence": {
-        "score": 10,
-        "modifier": 0,
-        "savingThrow": 0,
-        "proficient": false
-      },
-      "wisdom": {
-        "score": 12,
-        "modifier": 1,
-        "savingThrow": 3,
-        "proficient": true
-      },
-      "charisma": {
-        "score": 14,
-        "modifier": 2,
-        "savingThrow": 4,
-        "proficient": true
-      }
-    },
-    "hitpoints": 11,
-    "armourClass": 9,
-    "equipped": null,
-    "weapons": []
-  }
-  ```
+- **Response**: `200 OK` (`application/json` or `text/html`)
 
-### 4. Error Responses
+### 5. Delete Character Confirmation Page
+- **Method**: `GET /character/{id}/delete`
+- **Description**: Shows confirmation prompt "Delete {name}? This cannot be undone." with confirm and cancel options.
+- **Response**: `200 OK` (`text/html`)
+
+### 6. Delete Character
+- **Method**: `POST /character/{id}/delete`
+- **Behavior**: Deletes the specified character and redirects to the character list page `/`.
+- **Response**: `302 Found` with header `Location: /`
+
+### 7. Error Responses
 Configured via Ktor `StatusPages`:
 - **400 Bad Request**: Returned if `{id}` is not a valid UUID format:
   ```
   Invalid character id
   ```
 - **404 Not Found**: Returned if the character ID does not exist in the store:
-  ```json
-  {
-    "error": "No character with id: <uuid>"
-  }
-  ```
+  - If `Accept: text/html`: Displays "Character not found" with a link back to `/`.
+  - If `Accept: application/json`:
+    ```json
+    {
+      "error": "No character with id: <uuid>"
+    }
+    ```
 
 ## Design Notes
 

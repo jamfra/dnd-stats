@@ -1,8 +1,11 @@
 package com.dndstats.presentation
 
 import com.dndstats.presentation.views.characterFormPage
+import com.dndstats.presentation.views.characterListPage
 import com.dndstats.presentation.views.characterSheetPage
+import com.dndstats.presentation.views.deleteConfirmationPage
 import com.dndstats.usecases.CreateCharacter
+import com.dndstats.usecases.DeleteCharacter
 import com.dndstats.usecases.GetCharacterSheet
 import com.dndstats.usecases.ValidationException
 import io.ktor.http.*
@@ -16,6 +19,20 @@ import java.util.UUID
 fun Application.configureRouting(useCases: UseCases) {
     routing {
         get("/") {
+            val acceptsJson = call.request.acceptItems().any {
+                it.value.equals("application/json", ignoreCase = true)
+            }
+            val characters = useCases.listCharacters.execute().characters
+            if (acceptsJson) {
+                call.respond(HttpStatusCode.OK, characters)
+            } else {
+                call.respondHtml(HttpStatusCode.OK) {
+                    characterListPage(characters)
+                }
+            }
+        }
+
+        get("/createCharacter") {
             call.respondHtml(HttpStatusCode.OK) {
                 characterFormPage()
             }
@@ -90,6 +107,34 @@ fun Application.configureRouting(useCases: UseCases) {
             } else {
                 call.respond(HttpStatusCode.OK, output.sheet)
             }
+        }
+
+        get("/character/{id}/delete") {
+            val idParam = call.parameters["id"]
+                ?: return@get call.respond(HttpStatusCode.BadRequest, "Missing character id")
+
+            val id = runCatching { UUID.fromString(idParam) }.getOrElse {
+                return@get call.respond(HttpStatusCode.BadRequest, "Invalid character id")
+            }
+
+            val output = useCases.getCharacterSheet.execute(GetCharacterSheet.Input(id = id))
+
+            call.respondHtml(HttpStatusCode.OK) {
+                deleteConfirmationPage(id, output.sheet.name)
+            }
+        }
+
+        post("/character/{id}/delete") {
+            val idParam = call.parameters["id"]
+                ?: return@post call.respond(HttpStatusCode.BadRequest, "Missing character id")
+
+            val id = runCatching { UUID.fromString(idParam) }.getOrElse {
+                return@post call.respond(HttpStatusCode.BadRequest, "Invalid character id")
+            }
+
+            useCases.deleteCharacter.execute(DeleteCharacter.Input(id = id))
+
+            call.respondRedirect("/")
         }
     }
 }

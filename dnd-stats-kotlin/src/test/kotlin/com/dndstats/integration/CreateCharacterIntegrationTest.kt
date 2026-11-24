@@ -29,8 +29,8 @@ class CreateCharacterIntegrationTest {
     }
 
     @Test
-    fun `GET slash responds with create character html containing form fields`() = withApp {
-        val response = client.get("/")
+    fun `GET createCharacter responds with create character html containing form fields`() = withApp {
+        val response = client.get("/createCharacter")
         assertEquals(HttpStatusCode.OK, response.status)
         val body = response.bodyAsText()
         assertTrue(body.contains("Create Character"))
