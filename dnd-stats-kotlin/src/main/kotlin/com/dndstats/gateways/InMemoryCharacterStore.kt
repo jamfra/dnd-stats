@@ -1,15 +1,17 @@
 package com.dndstats.gateways
 
 import com.dndstats.domain.Character
+import java.util.Collections
+import java.util.LinkedHashMap
 import java.util.UUID
-import java.util.concurrent.ConcurrentHashMap
 
 /**
  * In-memory adapter for [CharacterStore].
- * Thread-safe via ConcurrentHashMap.
+ * Thread-safe via synchronized LinkedHashMap to preserve insertion order (FIFO).
  */
 class InMemoryCharacterStore : CharacterStore {
-    private val characters = ConcurrentHashMap<UUID, Character>()
+    private val characters: MutableMap<UUID, Character> =
+        Collections.synchronizedMap(LinkedHashMap<UUID, Character>())
 
     override fun save(character: Character): UUID {
         val id = UUID.randomUUID()
@@ -19,4 +21,12 @@ class InMemoryCharacterStore : CharacterStore {
 
     override fun get(id: UUID): Character =
         characters[id] ?: throw NoSuchElementException("No character with id: $id")
+
+    override fun getAll(): List<StoredCharacter> = synchronized(characters) {
+        characters.map { (id, character) -> StoredCharacter(id, character) }
+    }
+
+    override fun delete(id: UUID): Boolean {
+        return characters.remove(id) != null
+    }
 }
