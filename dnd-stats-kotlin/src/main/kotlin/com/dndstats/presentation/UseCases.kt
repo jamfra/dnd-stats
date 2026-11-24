@@ -3,6 +3,7 @@ package com.dndstats.presentation
 import com.dndstats.gateways.CharacterStore
 import com.dndstats.usecases.CreateCharacter
 import com.dndstats.usecases.DeleteCharacter
+import com.dndstats.usecases.EditCharacter
 import com.dndstats.usecases.GetCharacterSheet
 import com.dndstats.usecases.ListCharacters
 
@@ -11,6 +12,7 @@ data class UseCases(
     val getCharacterSheet: GetCharacterSheet,
     val listCharacters: ListCharacters,
     val deleteCharacter: DeleteCharacter,
+    val editCharacter: EditCharacter,
 )
 
 fun buildUseCases(store: CharacterStore) = UseCases(
@@ -18,4 +20,5 @@ fun buildUseCases(store: CharacterStore) = UseCases(
     getCharacterSheet = GetCharacterSheet(store),
     listCharacters = ListCharacters(store),
     deleteCharacter = DeleteCharacter(store),
+    editCharacter = EditCharacter(store),
 )

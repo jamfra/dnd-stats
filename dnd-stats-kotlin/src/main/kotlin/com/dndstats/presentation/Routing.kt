@@ -1,11 +1,13 @@
 package com.dndstats.presentation
 
+import com.dndstats.presentation.views.characterEditFormPage
 import com.dndstats.presentation.views.characterFormPage
 import com.dndstats.presentation.views.characterListPage
 import com.dndstats.presentation.views.characterSheetPage
 import com.dndstats.presentation.views.deleteConfirmationPage
 import com.dndstats.usecases.CreateCharacter
 import com.dndstats.usecases.DeleteCharacter
+import com.dndstats.usecases.EditCharacter
 import com.dndstats.usecases.GetCharacterSheet
 import com.dndstats.usecases.ValidationException
 import io.ktor.http.*
@@ -85,10 +87,75 @@ fun Application.configureRouting(useCases: UseCases) {
 
             if (call.acceptsHtml()) {
                 call.respondHtml(HttpStatusCode.OK) {
-                    characterSheetPage(output.sheet)
+                    characterSheetPage(id, output.sheet)
                 }
             } else {
                 call.respond(HttpStatusCode.OK, output.sheet)
+            }
+        }
+
+        get("/character/{id}/edit") {
+            val id = call.receiveUuid() ?: return@get
+            val output = useCases.getCharacterSheet.execute(GetCharacterSheet.Input(id = id))
+            call.respondHtml(HttpStatusCode.OK) {
+                characterEditFormPage(id, output.sheet)
+            }
+        }
+
+        post("/character/{id}/edit") {
+            val id = call.receiveUuid() ?: return@post
+            val params = call.receiveParameters()
+            val name = params["name"].orEmpty()
+            val species = params["species"].orEmpty()
+            val characterClass = params["characterClass"] ?: params["class"].orEmpty()
+            val level = params["level"]?.toIntOrNull() ?: 0
+            val strength = params["strength"]?.toIntOrNull() ?: 0
+            val dexterity = params["dexterity"]?.toIntOrNull() ?: 0
+            val constitution = params["constitution"]?.toIntOrNull() ?: 0
+            val intelligence = params["intelligence"]?.toIntOrNull() ?: 0
+            val wisdom = params["wisdom"]?.toIntOrNull() ?: 0
+            val charisma = params["charisma"]?.toIntOrNull() ?: 0
+            val acOverrideParam = params["armorClassOverride"] ?: params["armourClassOverride"]
+            val armorClassOverride = when {
+                acOverrideParam.isNullOrBlank() -> null
+                else -> acOverrideParam.toIntOrNull() ?: -1
+            }
+
+            try {
+                useCases.editCharacter.execute(
+                    EditCharacter.Input(
+                        id = id,
+                        name = name,
+                        species = species,
+                        characterClass = characterClass,
+                        level = level,
+                        abilityScores = EditCharacter.Input.AbilityScoreInput(
+                            strength = strength,
+                            dexterity = dexterity,
+                            constitution = constitution,
+                            intelligence = intelligence,
+                            wisdom = wisdom,
+                            charisma = charisma,
+                        ),
+                        armorClassOverride = armorClassOverride,
+                    )
+                )
+                call.respondRedirect("/character/$id")
+            } catch (e: ValidationException) {
+                if (call.acceptsJson()) {
+                    call.respond(HttpStatusCode.BadRequest, mapOf("errors" to e.errors))
+                } else {
+                    val sheet = runCatching { useCases.getCharacterSheet.execute(GetCharacterSheet.Input(id)).sheet }.getOrNull()
+                    if (sheet != null) {
+                        call.respondHtml(HttpStatusCode.BadRequest) {
+                            characterEditFormPage(id, sheet, errors = e.errors)
+                        }
+                    } else {
+                        call.respondHtml(HttpStatusCode.BadRequest) {
+                            characterFormPage(errors = e.errors)
+                        }
+                    }
+                }
             }
         }
 

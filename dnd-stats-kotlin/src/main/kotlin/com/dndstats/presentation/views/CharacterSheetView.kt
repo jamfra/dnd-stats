@@ -2,11 +2,14 @@ package com.dndstats.presentation.views
 
 import com.dndstats.usecases.GetCharacterSheet
 import kotlinx.html.*
+import java.util.UUID
 
-fun HTML.characterSheetPage(sheet: GetCharacterSheet.SheetDto) {
+fun HTML.characterSheetPage(id: UUID, sheet: GetCharacterSheet.SheetDto) {
     body {
         p {
             a(href = "/") { +"Back to character list" }
+            +" | "
+            a(href = "/character/$id/edit") { +"Edit character" }
         }
 
         h1 { +"Character Sheet" }
@@ -76,3 +79,7 @@ fun HTML.characterSheetPage(sheet: GetCharacterSheet.SheetDto) {
         }
     }
 }
+
+fun HTML.characterSheetPage(sheet: GetCharacterSheet.SheetDto) =
+    characterSheetPage(UUID.randomUUID(), sheet)
+
