@@ -1,6 +1,7 @@
 package com.dndstats.domain
 
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
@@ -24,6 +25,15 @@ class CharacterTest {
 
         @Test
         fun `has class`() = assertEquals("Paladin", sheet.characterClass)
+
+        @Test
+        fun `has null armour class override by default`() = assertNull(sheet.armourClassOverride)
+
+        @Test
+        fun `has armour class override when provided`() {
+            val character = Character("Aria", "Human", "Paladin", 1, ariaScores, armourClassOverride = 15)
+            assertEquals(15, character.basicInfo().armourClassOverride)
+        }
     }
 
     @Nested
@@ -53,6 +63,12 @@ class CharacterTest {
         @Test
         fun `returns expected armour class`() {
             assertEquals(9, aria.armourClass())
+        }
+
+        @Test
+        fun `returns override armour class when override is set`() {
+            val character = Character("Aria", "Human", "Paladin", 1, ariaScores, armourClassOverride = 18)
+            assertEquals(18, character.armourClass())
         }
 
         @Test

@@ -6,12 +6,14 @@ class Character(
     private val characterClass: String,
     private val level: Int,
     private val abilityScores: AbilityScores = AbilityScores.default(),
+    private val armourClassOverride: Int? = null,
 ) {
     data class BasicInfo(
         val name: String,
         val species: String,
         val level: Int,
         val characterClass: String,
+        val armourClassOverride: Int? = null,
     )
 
     data class StatResult(
@@ -28,6 +30,7 @@ class Character(
         species = species,
         level = level,
         characterClass = characterClass,
+        armourClassOverride = armourClassOverride,
     )
 
     fun proficiencyBonus(): Int = ((level - 1) / 4) + 2
@@ -47,7 +50,7 @@ class Character(
 
     fun hitpoints(): Int = hitDie() + abilityScores.get(ScoreName.CONSTITUTION).modifier
 
-    fun armourClass(): Int = abilityScores.get(ScoreName.DEXTERITY).modifier + 10
+    fun armourClass(): Int = armourClassOverride ?: (abilityScores.get(ScoreName.DEXTERITY).modifier + 10)
 
     private fun hitDie(): Int = dndClass?.hitDie ?: 10
 
@@ -56,8 +59,21 @@ class Character(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Character) return false
-        return name == other.name && abilityScores == other.abilityScores
+        return name == other.name &&
+            species == other.species &&
+            characterClass == other.characterClass &&
+            level == other.level &&
+            abilityScores == other.abilityScores &&
+            armourClassOverride == other.armourClassOverride
     }
 
-    override fun hashCode(): Int = 31 * name.hashCode() + abilityScores.hashCode()
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + species.hashCode()
+        result = 31 * result + characterClass.hashCode()
+        result = 31 * result + level
+        result = 31 * result + abilityScores.hashCode()
+        result = 31 * result + (armourClassOverride?.hashCode() ?: 0)
+        return result
+    }
 }
