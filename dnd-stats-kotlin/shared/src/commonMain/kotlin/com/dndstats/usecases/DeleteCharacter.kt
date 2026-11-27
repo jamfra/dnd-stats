@@ -1,0 +1,15 @@
+package com.dndstats.usecases
+
+import kotlin.uuid.Uuid
+
+class DeleteCharacter(private val store: CharacterStore) {
+
+    data class Input(val id: Uuid)
+
+    fun execute(input: Input) {
+        val deleted = store.delete(input.id)
+        if (!deleted) {
+            throw NoSuchElementException("No character with id: ${input.id}")
+        }
+    }
+}
