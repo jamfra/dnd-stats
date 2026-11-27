@@ -43,6 +43,16 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+
+    testLogging {
+        events("failed")
+    }
+
+    afterSuite(KotlinClosure2({ desc: TestDescriptor, result: TestResult ->
+        if (desc.parent == null) {
+            println("\nResults: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} passed, ${result.failedTestCount} failed, ${result.skippedTestCount} skipped)")
+        }
+    }))
 }
 
 kotlin {
