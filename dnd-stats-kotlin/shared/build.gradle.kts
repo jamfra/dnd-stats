@@ -57,3 +57,7 @@ tasks.named<Test>("jvmTest") {
         }
     }))
 }
+
+tasks.matching { it.name == "test" }.configureEach {
+    dependsOn("allTests")
+}

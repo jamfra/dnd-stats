@@ -16,3 +16,4 @@ dependencyResolutionManagement {
 rootProject.name = "dnd-stats"
 include(":shared")
 include(":server")
+include(":androidApp")
