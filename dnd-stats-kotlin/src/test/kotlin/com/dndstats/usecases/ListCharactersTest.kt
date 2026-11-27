@@ -1,8 +1,6 @@
 package com.dndstats.usecases
 
 import com.dndstats.domain.Character
-import com.dndstats.gateways.CharacterStore
-import com.dndstats.gateways.StoredCharacter
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals

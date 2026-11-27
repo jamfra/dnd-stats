@@ -1,7 +1,6 @@
 package com.dndstats.usecases
 
 import com.dndstats.domain.ScoreName
-import com.dndstats.gateways.CharacterStore
 import kotlinx.serialization.Serializable
 import java.util.UUID
 

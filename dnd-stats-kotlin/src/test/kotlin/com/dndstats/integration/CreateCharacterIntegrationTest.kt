@@ -1,7 +1,7 @@
 package com.dndstats.integration
 
 import com.dndstats.gateways.InMemoryCharacterStore
-import com.dndstats.presentation.buildUseCases
+import com.dndstats.buildUseCases
 import com.dndstats.presentation.configureRouting
 import com.dndstats.presentation.configureSerialization
 import com.dndstats.presentation.configureStatusPages

@@ -1,11 +1,14 @@
 package com.dndstats.presentation.views
 
-import com.dndstats.domain.CharacterClass
+import com.dndstats.usecases.CreateCharacter
 import com.dndstats.usecases.GetCharacterSheet
 import kotlinx.html.*
 import java.util.UUID
 
-fun HTML.characterFormPage(errors: List<String> = emptyList()) {
+fun HTML.characterFormPage(
+    errors: List<String> = emptyList(),
+    availableClasses: List<String> = CreateCharacter.AVAILABLE_CLASSES,
+) {
     body {
         p {
             a(href = "/") { +"Back to character list" }
@@ -56,10 +59,10 @@ fun HTML.characterFormPage(errors: List<String> = emptyList()) {
                         value = ""
                         +"Select a class"
                     }
-                    CharacterClass.entries.forEach { cls ->
+                    availableClasses.forEach { className ->
                         option {
-                            value = cls.displayName
-                            +cls.displayName
+                            value = className
+                            +className
                         }
                     }
                 }
@@ -163,6 +166,7 @@ fun HTML.characterEditFormPage(
     characterId: UUID,
     sheet: GetCharacterSheet.SheetDto,
     errors: List<String> = emptyList(),
+    availableClasses: List<String> = CreateCharacter.AVAILABLE_CLASSES,
 ) {
     body {
         p {
@@ -216,11 +220,11 @@ fun HTML.characterEditFormPage(
                         value = ""
                         +"Select a class"
                     }
-                    CharacterClass.entries.forEach { cls ->
+                    availableClasses.forEach { className ->
                         option {
-                            value = cls.displayName
-                            selected = cls.displayName.equals(sheet.characterClass, ignoreCase = true)
-                            +cls.displayName
+                            value = className
+                            selected = className.equals(sheet.characterClass, ignoreCase = true)
+                            +className
                         }
                     }
                 }

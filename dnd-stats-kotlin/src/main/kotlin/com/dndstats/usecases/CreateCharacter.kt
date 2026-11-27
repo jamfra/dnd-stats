@@ -3,10 +3,13 @@ package com.dndstats.usecases
 import com.dndstats.domain.AbilityScores
 import com.dndstats.domain.Character
 import com.dndstats.domain.CharacterClass
-import com.dndstats.gateways.CharacterStore
 import java.util.UUID
 
 class CreateCharacter(private val store: CharacterStore) {
+    companion object {
+        val AVAILABLE_CLASSES: List<String> = CharacterClass.entries.map { it.displayName }
+    }
+
     data class Input(
         val name: String,
         val species: String,

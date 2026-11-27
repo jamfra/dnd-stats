@@ -1,6 +1,7 @@
 package com.dndstats.gateways
 
 import com.dndstats.domain.Character
+import com.dndstats.usecases.StoredCharacter
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.util.UUID

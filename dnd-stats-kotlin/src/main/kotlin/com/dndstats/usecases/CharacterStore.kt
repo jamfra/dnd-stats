@@ -1,4 +1,4 @@
-package com.dndstats.gateways
+package com.dndstats.usecases
 
 import com.dndstats.domain.Character
 import java.util.UUID

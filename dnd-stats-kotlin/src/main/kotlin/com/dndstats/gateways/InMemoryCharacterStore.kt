@@ -1,6 +1,8 @@
 package com.dndstats.gateways
 
 import com.dndstats.domain.Character
+import com.dndstats.usecases.CharacterStore
+import com.dndstats.usecases.StoredCharacter
 import java.util.Collections
 import java.util.LinkedHashMap
 import java.util.UUID

@@ -3,7 +3,6 @@ package com.dndstats.usecases
 import com.dndstats.domain.AbilityScores
 import com.dndstats.domain.Character
 import com.dndstats.domain.CharacterClass
-import com.dndstats.gateways.CharacterStore
 import java.util.UUID
 
 class EditCharacter(private val store: CharacterStore) {

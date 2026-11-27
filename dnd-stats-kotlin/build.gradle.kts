@@ -18,6 +18,7 @@ repositories {
 val ktorVersion = "2.3.12"
 val kotlinVersion = "2.0.21"
 val logbackVersion = "1.5.12"
+val konsistVersion = "0.17.3"
 
 dependencies {
     // Ktor server
@@ -32,6 +33,7 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
 
     // Testing
+    testImplementation("com.lemonappdev:konsist:$konsistVersion")
     testImplementation("io.ktor:ktor-server-test-host-jvm:$ktorVersion")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5:$kotlinVersion")
     testImplementation("io.mockk:mockk:1.13.13")

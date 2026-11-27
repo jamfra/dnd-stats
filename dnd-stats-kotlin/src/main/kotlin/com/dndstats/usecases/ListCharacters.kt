@@ -1,6 +1,5 @@
 package com.dndstats.usecases
 
-import com.dndstats.gateways.CharacterStore
 import kotlinx.serialization.Serializable
 
 class ListCharacters(private val store: CharacterStore) {
